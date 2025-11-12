@@ -1,10 +1,19 @@
 import {
   Mesh,
   MeshStandardMaterial,
-  SphereGeometry,PlaneGeometry,
+  SphereGeometry,
+  PlaneGeometry,
   SessionMode,
   World,
-  LocomotionEnvironment,EnvironmentType
+  LocomotionEnvironment,
+  EnvironmentType,
+  PhysicsBody, 
+  PhysicsShape, 
+  PhysicsShapeType, 
+  PhysicsState, 
+  PhysicsSystem,
+  OneHandGrabbable,
+  CylinderGeometry,
 } from '@iwsdk/core';
 
 import {
@@ -25,7 +34,10 @@ World.create(document.getElementById('scene-container'), {
     features: { }
   },
 
-  features: { locomotion: true },
+  features: { 
+    locomotion: true, 
+    grabbing: true,
+  },
 
 }).then((world) => {
 
@@ -37,7 +49,11 @@ World.create(document.getElementById('scene-container'), {
   const greenMaterial = new MeshStandardMaterial({ color: "red" });
   const sphere = new Mesh(sphereGeometry, greenMaterial);
   sphere.position.set(1, 1.5, -3);
+
+  //Grabbing
   const sphereEntity = world.createTransformEntity(sphere);
+  sphereEntity.addComponent(Interactable);
+  sphereEntity.addComponent(OneHandGrabbable);
 
   // create a floor
   const floorMesh = new Mesh(new PlaneGeometry(20, 20), new MeshStandardMaterial({color:"tan"}));
@@ -45,11 +61,24 @@ World.create(document.getElementById('scene-container'), {
   const floorEntity = world.createTransformEntity(floorMesh);
   floorEntity.addComponent(LocomotionEnvironment, { type: EnvironmentType.STATIC });
 
-
-
+  const cylinderGeometry = new CylinderGeometry(.05, .05, 2.5);
+  const cylinderMaterial = new MeshStandardMaterial({ color: "red" });
+  const cylinder = new Mesh(cylinderGeometry, cylinderMaterial);
+  cylinder.position.set(0, 0, -1);
+  
+  //Grabbing
+  const cylinderEntity = world.createTransformEntity(cylinder);
+  cylinderEntity.addComponent(Interactable);
+  cylinderEntity.addComponent(OneHandGrabbable);
+  
+  //Physics
+  sphereEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto,  density: 0.2,  friction: 0.5,  restitution: 0.9 }); 
+  sphereEntity.addComponent(PhysicsBody, { state: PhysicsState.Dynamic });
+  floorEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto });
+  floorEntity.addComponent(PhysicsBody, { state: PhysicsState.Static });
+  world.registerSystem(PhysicsSystem).registerComponent(PhysicsBody).registerComponent(PhysicsShape);
 
   
-
 
 
 

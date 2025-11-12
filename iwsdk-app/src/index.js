@@ -56,15 +56,17 @@ World.create(document.getElementById('scene-container'), {
   sphereEntity.addComponent(OneHandGrabbable);
 
   // create a floor
-  const floorMesh = new Mesh(new PlaneGeometry(20, 20), new MeshStandardMaterial({color:"tan"}));
+  const floorMesh = new Mesh(new PlaneGeometry(20, 20), new MeshStandardMaterial({ color:"tan" }));
   floorMesh.rotation.x = -Math.PI / 2;
   const floorEntity = world.createTransformEntity(floorMesh);
   floorEntity.addComponent(LocomotionEnvironment, { type: EnvironmentType.STATIC });
 
-  const cylinderGeometry = new CylinderGeometry(.05, .05, 2.5);
+  const cylinderGeometry = new CylinderGeometry(.025, .025, 1.5);
   const cylinderMaterial = new MeshStandardMaterial({ color: "red" });
   const cylinder = new Mesh(cylinderGeometry, cylinderMaterial);
-  cylinder.position.set(0, 0, -1);
+  cylinder.rotation.x = -Math.PI / 2;
+  cylinder.rotation.z = -Math.PI / 2;
+  cylinder.position.set(0, 1.5, -1);
   
   //Grabbing
   const cylinderEntity = world.createTransformEntity(cylinder);
@@ -74,6 +76,8 @@ World.create(document.getElementById('scene-container'), {
   //Physics
   sphereEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto,  density: 0.2,  friction: 0.5,  restitution: 0.9 }); 
   sphereEntity.addComponent(PhysicsBody, { state: PhysicsState.Dynamic });
+  cylinderEntity.addComponent(PhysicsBody, { state: PhysicsState.Dynamic });
+  cylinderEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto,  density: 0.2,  friction: 0.5,  restitution: 0.9 }); 
   floorEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto });
   floorEntity.addComponent(PhysicsBody, { state: PhysicsState.Static });
   world.registerSystem(PhysicsSystem).registerComponent(PhysicsBody).registerComponent(PhysicsShape);

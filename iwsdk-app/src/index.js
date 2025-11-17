@@ -43,6 +43,7 @@ World.create(document.getElementById('scene-container'), {
 
   const { camera } = world;
 
+  world.registerSystem(PhysicsSystem).registerComponent(PhysicsBody).registerComponent(PhysicsShape);
   
   // Create a green sphere
   const sphereGeometry = new SphereGeometry(0.25, 32, 32);
@@ -52,8 +53,11 @@ World.create(document.getElementById('scene-container'), {
 
   //Grabbing
   const sphereEntity = world.createTransformEntity(sphere);
-  sphereEntity.addComponent(Interactable);
-  sphereEntity.addComponent(OneHandGrabbable);
+  sphereEntity.addComponent(Interactable).addComponent(OneHandGrabbable);
+
+  //Physics
+  sphereEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto,  density: 0.2,  friction: 0.5,  restitution: 0.9 }); 
+  sphereEntity.addComponent(PhysicsBody, { state: PhysicsState.Dynamic });
 
   // create a floor
   const floorMesh = new Mesh(new PlaneGeometry(20, 20), new MeshStandardMaterial({ color:"tan" }));
@@ -61,6 +65,10 @@ World.create(document.getElementById('scene-container'), {
   const floorEntity = world.createTransformEntity(floorMesh);
   floorEntity.addComponent(LocomotionEnvironment, { type: EnvironmentType.STATIC });
 
+  //Physics
+  floorEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto }).addComponent(PhysicsBody, { state: PhysicsState.Static });
+
+  //Bat
   const cylinderGeometry = new CylinderGeometry(.025, .025, 1.5);
   const cylinderMaterial = new MeshStandardMaterial({ color: "red" });
   const cylinder = new Mesh(cylinderGeometry, cylinderMaterial);
@@ -70,22 +78,46 @@ World.create(document.getElementById('scene-container'), {
   
   //Grabbing
   const cylinderEntity = world.createTransformEntity(cylinder);
-  cylinderEntity.addComponent(Interactable);
-  cylinderEntity.addComponent(OneHandGrabbable);
+  cylinderEntity.addComponent(Interactable).addComponent(OneHandGrabbable);
   
   //Physics
-  sphereEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto,  density: 0.2,  friction: 0.5,  restitution: 0.9 }); 
-  sphereEntity.addComponent(PhysicsBody, { state: PhysicsState.Dynamic });
-  cylinderEntity.addComponent(PhysicsBody, { state: PhysicsState.Dynamic });
   cylinderEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto,  density: 0.2,  friction: 0.5,  restitution: 0.9 }); 
-  floorEntity.addComponent(PhysicsShape, { shape: PhysicsShapeType.Auto });
-  floorEntity.addComponent(PhysicsBody, { state: PhysicsState.Static });
-  world.registerSystem(PhysicsSystem).registerComponent(PhysicsBody).registerComponent(PhysicsShape);
+  cylinderEntity.addComponent(PhysicsBody, { state: PhysicsState.Kinematic });
 
+  //Back wall
+  const wallMesh = new Mesh(new PlaneGeometry(600, 10), new MeshStandardMaterial({color:"black"}));
+  wallMesh.position.set(0, 5, -30);
+  const wallEntity = world.createTransformEntity(wallMesh);
   
+  //Physics
+  wallEntity.addComponent(PhysicsBody, { state: PhysicsState.Static });
+  wallEntity.addComponent(PhysicsShape, {shape: PhysicsShapeType.Auto, restitution: 0.9,});
 
+  console.log('a button pressed!');
 
+  //GameLoop
+  function gameLoop() {
+    // code here runs every frame
+    if (sphereEntity.position.z < -30) {
+        sphereEntity.destroy()
+    }
 
+    const leftCtrl = world.input.gamepads.left
+    if (leftCtrl?.gamepad.buttons[4].pressed) {
+          console.log('x button pressed!');
+          // do something like spawn a new object
+          sphereEntity.position.set(0, 5, -3);
+    }
+    const rightCtrl = world.input.gamepads.right
+    if (rightCtrl?.gamepad.buttons[4].pressed) {
+          console.log('a button pressed!');
+          // do something like spawn a new object
+          batEntity.position.set(1, 1, -.5);
+    }
+
+    requestAnimationFrame(gameLoop);
+  }
+  gameLoop();
 
   // vvvvvvvv EVERYTHING BELOW WAS ADDED TO DISPLAY A BUTTON TO ENTER VR FOR QUEST 1 DEVICES vvvvvv
   //          (for some reason IWSDK doesn't show Enter VR button on Quest 1)

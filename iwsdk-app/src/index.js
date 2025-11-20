@@ -86,7 +86,7 @@ World.create(document.getElementById('scene-container'), {
 
   //Back wall
   const wallMesh = new Mesh(new PlaneGeometry(600, 10), new MeshStandardMaterial({color:"black"}));
-  wallMesh.position.set(0, 5, -30);
+  wallMesh.position.set(0, 5, -15);
   const wallEntity = world.createTransformEntity(wallMesh);
   
   //Physics
@@ -94,6 +94,11 @@ World.create(document.getElementById('scene-container'), {
   wallEntity.addComponent(PhysicsShape, {shape: PhysicsShapeType.Auto, restitution: 0.9,});
 
   console.log('a button pressed!');
+
+  function respawnSphere() {
+  sphereEntity.position.set(0, 5, -3);   // reset position
+  sphereEntity.physicsBody.setVelocity(0, 0, 0); // stop movement
+}
 
   //GameLoop
   function gameLoop() {
@@ -108,6 +113,7 @@ World.create(document.getElementById('scene-container'), {
           // do something like spawn a new object
           sphereEntity.position.set(0, 5, -3);
     }
+
     const rightCtrl = world.input.gamepads.right
     if (rightCtrl?.gamepad.buttons[4].pressed) {
           console.log('a button pressed!');

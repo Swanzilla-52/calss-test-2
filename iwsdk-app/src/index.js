@@ -93,7 +93,7 @@ World.create(document.getElementById('scene-container'), {
   wallEntity.addComponent(PhysicsBody, { state: PhysicsState.Static });
   wallEntity.addComponent(PhysicsShape, {shape: PhysicsShapeType.Auto, restitution: 0.9,});
 
-  console.log('a button pressed!');
+  console.log('HOme Run!!');
 
   function respawnSphere() {
   sphereEntity.position.set(0, 5, -3);   // reset position
